@@ -1,0 +1,21 @@
+version: '1.0'
+
+services:
+  dreamweaverbot:
+    container_name: stable-diffusion-telegram-bot # Container name
+    image: stable-diffusion-telegram-bot:latest # Example name of the image
+    restart: unless-stopped
+    environment:
+      SERVER_URL: http://127.0.0.1:7860/ # Stable Diffusion API server URL. Defaults to http://127.0.0.1:7860/
+      TG_TOKEN: 'None' # Telegram API token. Defaults to None
+      MODEL: None # Stable diffusion 1.5 or XL model name. Defaults to None
+      SAMPLER: DPM++ 2M # Stable diffusion sampler name. Defaults to DPM++ 2M
+      CFG_SCALE: 7 # Integer between 6 and 14 is recommended. Defaults to 7
+      DENOISING_STRENGTH: 0.75 # Float between 0 and 1. Defaults to 0.75
+      NEGATIVE_PROMPT: '' # Default negative prompt for all generations, Defaults to ''
+      RESIZE_MODE: 0 # Index between 0 and 3 for array: [just resize, crop and resize, resize and fill, just resize (latent upscale)]. Defaults to 0
+      LORAS: '' # Default additions for all prompts such as loras, keywords such 'masterpiece, best quality', etc. Defaults to ''
+      CONTROLNET_ENABLE: False # Enable or disable using controlnet for img2img generation. Defaults to False. Requires Controlnet Extension
+      CONTROLNET_MODULE: 'none' # Controlnet module to use for img2img generation. Defaults to 'none'. Requires Controlnet Extension
+      CONTROLNET_MODE: 0 # Index between 0 and 2 for array: [Balanced, My prompt is more important, Controlnet is more important]. Defaults to 0. Requires Controlnet Extension
+      RECURSIVE_UPSCALE: False # Enable or disable recursive upscaling. Will increase image size from 512x512 to 1024x1024 and then upscale again to 2048x2048. Defaults to False. Requires Controlnet Extension.
