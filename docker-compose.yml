@@ -12,6 +12,12 @@ services:
       SAMPLER: DPM++ 2M # Stable diffusion sampler name. Defaults to DPM++ 2M
       CFG_SCALE: 7 # Integer between 6 and 14 is recommended. Defaults to 7
       DENOISING_STRENGTH: 0.75 # Float between 0 and 1. Defaults to 0.75
+      STEPS: 25 # Integer between 1 and 150. Defaults to 25
+      CLIP_LAYERS: 2 # Integer between 1 and 12. Defaults to 2
+      SEED: -1 # Random Integer with > 0. Value of -1 will be random. Defaults to -1
+      WIDTH: 512 # Width of the generated image
+      HEIGHT: 512 # Height of the generated image
+      RESTORE_FACES: True # Enable or Disable face restoring. Defaults to True
       NEGATIVE_PROMPT: '' # Default negative prompt for all generations, Defaults to ''
       RESIZE_MODE: 0 # Index between 0 and 3 for array: [just resize, crop and resize, resize and fill, just resize (latent upscale)]. Defaults to 0
       LORAS: '' # Default additions for all prompts such as loras, keywords such 'masterpiece, best quality', etc. Defaults to ''
@@ -19,3 +25,4 @@ services:
       CONTROLNET_MODULE: 'none' # Controlnet module to use for img2img generation. Defaults to 'none'. Requires Controlnet Extension
       CONTROLNET_MODE: 0 # Index between 0 and 2 for array: [Balanced, My prompt is more important, Controlnet is more important]. Defaults to 0. Requires Controlnet Extension
       RECURSIVE_UPSCALE: False # Enable or disable recursive upscaling. Will increase image size from 512x512 to 1024x1024 and then upscale again to 2048x2048. Defaults to False. Requires Controlnet Extension.
+      CONTROLNET_UPSCALE_MODEL: ttplanetSDXLControlnet_v20Fp16 [c32b8550] # Controlnet model to use for tile resample upscale. Defaults to 'none'. Requires Controlnet Extension

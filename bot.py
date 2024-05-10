@@ -17,6 +17,12 @@ model = os.getenv('MODEL', None)
 sampler = os.getenv('SAMPLER', 'DPM++ 2M')
 cfg_scale = int(os.getenv('CFG_SCALE', 7))
 denoising_strength = float(os.getenv('DENOISING_STRENGTH', 0.75))
+steps = int(os.getenv('STEPS', 25))
+clip_stop_at = int(os.getenv('CLIP_LAYERS', 2))
+seed = int(os.getenv('SEED', -1))
+width = int(os.getenv('WIDTH', 512))
+height = int(os.getenv('HEIGHT', 512))
+restore_faces = os.getenv('RESTORE_FACES', 'True').lower() in ('true')
 negative_prompt = os.getenv('NEGATIVE_PROMPT', '')
 resize_mode = int(os.getenv('RESIZE_MODE', 0))
 loras = os.getenv('LORAS', '')
@@ -24,23 +30,24 @@ img2img_controlnet = os.getenv('CONTROLNET_ENABLE', 'False').lower() in ('true')
 controlnet_module = os.getenv('CONTROLNET_MODULE', 'none')
 controlnet_mode = int(os.getenv('CONTROLNET_MODE', 0))
 recursive_upscale = os.getenv('RECURSIVE_UPSCALE', 'False').lower() in ('true')
+controlnet_upscale_model = os.getenv('CONTROLNET_UPSCALE_MODEL', 'none')
 
 
 base_payload = {
-    "steps":25,
+    "steps":steps,
     "negative_prompt":negative_prompt,
     "override_settings": {
         'sd_model_checkpoint': model,
-        "CLIP_stop_at_last_layers": 2,
+        "CLIP_stop_at_last_layers": clip_stop_at,
     },
     "override_settings_restore_afterwards": True,
     "sampler_name":sampler,
     "scheduler":"Karras",
     "cfg_scale": cfg_scale,
-    "seed": -1,
-    "width":512,
-    "height":512,
-    "restore_faces":True,
+    "seed": seed,
+    "width":width,
+    "height":height,
+    "restore_faces":restore_faces,
     "denoising_strength": denoising_strength,
 }
 
@@ -116,7 +123,7 @@ async def upscale(upscale_endpoint, upscale_photo, upscale_prompt, upscale_denoi
                                 {
                                     "input_image": encode_to_base64(upscale_photo),
                                     "module": "tile_resample",
-                                    "model": "controlnetxlCNXL_bdsqlszTileReal [12b261fe]",
+                                    "model": controlnet_upscale_model,
                                     "control_mode": 2,
                                     "processor_res": 512,
                                     "threshold_a": 1.0,
