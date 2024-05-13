@@ -29,6 +29,12 @@ The bot uses several environment variables that can be set when running the Dock
 * `SAMPLER`: The sampler name to use for image generation (default: DPM++ 2M).  
 * `CFG_SCALE`: An integer between 6 and 14 that controls the CFG scale (default: 7).  
 * `DENOISING_STRENGTH`: A float between 0 and 1 that controls the denoising strength (default: 0.75).  
+* `STEPS`: An integer between 1 and 150 (default: 25).
+* `CLIP_LAYERS`: An integer between 1 and 12 (default: 2).
+* `SEED`: A random Integer with value > 0. Value of -1 will generate a ranom number (default: -1).
+* `WIDTH`: Width of the generated image (default: 512).
+* `HEIGHT`: Height of the generated image (default: 512).
+* `RESTORE_FACES`: Enable or Disable face restoring (default: True)
 * `NEGATIVE_PROMPT`: The default negative prompt for all generations (default: '').  
 * `RESIZE_MODE`: An integer between 0 and 3 for array: [just resize, crop and resize, resize and fill, just resize (latent upscale)] that controls how images are resized (default: 0).  
 * `LORAS`: A string that provides default additions to prompts such as for LORAs (default: '').  
@@ -36,6 +42,7 @@ The bot uses several environment variables that can be set when running the Dock
 * `CONTROLNET_MODULE`: The name of the ControlNet module to use for img2img generation (default: 'none').  
 * `CONTROLNET_MODE`: An integer between 0 and 2 for array: [Balanced, My prompt is more important, ControlNet is more important] that controls how ControlNet is used for img2img generation (default: 0).  
 * `RECURSIVE_UPSCALE`: A boolean that enables or disables recursive upscaling (default: False).  
+* `CONTROLNET_UPSCALE_MODEL`: Controlnet model to use for tile resample upscale (default: 'none').
   
 **Getting Started**
 
@@ -74,6 +81,7 @@ For AMD GPUs:
 10. Delete the existing `cublas64_11.dll` and `cusparse64_11.dll` from `...\stable-diffusion-webui-directml\venv\Lib\site-packages\torch\lib`
 11. Rename the copied `cublas.dll` and `cusparse.dll` files to `cublas64_11.dll` and `cusparse64_11.dll` respectively
 12. Run `webui.bat --use-zluda --api --listen`
+> Note, first image generation will take a very long time and will look like it is doing nothing. The bot will likely time out. Leave your computer be for quite some time and keep an eye on the terminal window for progress.
 
 ***Option 1: Python***
 To get started with Python, ensure you have [Python 3.10.6](https://www.python.org/downloads/release/python-3106/) installed and added to your PATH prior to following the steps below: 
@@ -85,6 +93,8 @@ To get started with Python, ensure you have [Python 3.10.6](https://www.python.o
 5. The Telegram bot should now be running and accessible.
 
 ***Option 2: Docker***
+>Use the below if you would like to make code changes and build the image locally. Otherwise, use the docker image from Docker Hub(coming soon)
+
 To get started with Docker, ensure you have [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed or otherwise have Docker running on your machine prior to following the steps below: 
 
 1. Clone this repository with `git clone` and navigate to the directory.  
