@@ -3,7 +3,7 @@ version: '1.0'
 services:
   dreamweaverbot:
     container_name: stable-diffusion-telegram-bot # Container name
-    image: stable-diffusion-telegram-bot:latest # Example name of the image
+    image: vshadbolt/stable-diffusion-telegram-bot:latest # Docker Image
     restart: unless-stopped
     environment:
       SERVER_URL: http://127.0.0.1:7860/ # Stable Diffusion API server URL. Defaults to http://127.0.0.1:7860/

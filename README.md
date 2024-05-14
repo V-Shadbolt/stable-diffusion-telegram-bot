@@ -93,7 +93,7 @@ To get started with Python, ensure you have [Python 3.10.6](https://www.python.o
 5. The Telegram bot should now be running and accessible.
 
 ***Option 2: Docker***
->Use the below if you would like to make code changes and build the image locally. Otherwise, use the docker image from [Docker Hub](https://hub.docker.com/r/vshadbolt/stable-diffusion-telegram-bot), `vshadbolt/stable-diffusion-telegram-bot:latest` in your compose file.
+>Use the below steps if you would like to make code changes and build the image locally. Otherwise, use the image available on [Docker Hub](https://hub.docker.com/r/vshadbolt/stable-diffusion-telegram-bot), `vshadbolt/stable-diffusion-telegram-bot:latest`, in the [compose](docker-compose.yml) file.
 
 To get started with Docker, ensure you have [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed or otherwise have Docker running on your machine prior to following the steps below: 
 
