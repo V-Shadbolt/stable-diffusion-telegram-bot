@@ -73,23 +73,17 @@ For NVIDIA GPUs:
 
 For AMD GPUs:
 
- I highly suggest following along with the video by [FE-Engineer](https://www.youtube.com/watch?v=n8RhNoAenvM) which outlines the below instructions on how to install ROCm on Windows and how to use ZLUDA. Full credit on the AMD GPU instructions to the author of that video.
->ZLUDA only works on [HIP SDK supported](https://rocm.docs.amd.com/projects/install-on-windows/en/develop/reference/system-requirements.html) AMD GPUs
+ We'll take advantage of ZLUDA to run Stable Diffusion on an AMD GPU. The Repo by [lshqqytiger](https://github.com/lshqqytiger/stable-diffusion-webui-amdgpu) is an AMD-specific fork of [Automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
+>Note, ZLUDA only works on [HIP SDK supported](https://rocm.docs.amd.com/projects/install-on-windows/en/develop/reference/system-requirements.html) AMD GPUs
 
 1. Install [Python 3.10.6](https://www.python.org/downloads/release/python-3106/), ensuring "Add to PATH" is checked 
 2. Install [git](https://git-scm.com/download/win)
 3. Install [HIP SDK for Windows](https://www.amd.com/en/developer/resources/rocm-hub/hip-sdk.html) 
->Ensure you de-select the Visual Studio Code options during install or you will get an error during install
-4. Download the latest [ZLUDA .zip release](https://github.com/lshqqytiger/ZLUDA/releases/) and extract it to your chosen directory
-5. Add `%HIP_PATH%bin` and add the extracted folder location for ZLUDA to PATH 
-6. Clone `https://github.com/lshqqytiger/stable-diffusion-webui-amdgpu.git` with `git clone` and navigate to the directory.  
-7. Run `webui.bat`
-8. After install, stop `webui.bat`
-9. Copy `cublas.dll` and `cusparse.dll` from the extracted ZLUDA folder to `...\stable-diffusion-webui-amdgpu\venv\Lib\site-packages\torch\lib`
-10. Delete the existing `cublas64_11.dll` and `cusparse64_11.dll` from `...\stable-diffusion-webui-amdgpu\venv\Lib\site-packages\torch\lib`
-11. Rename the copied `cublas.dll` and `cusparse.dll` files to `cublas64_11.dll` and `cusparse64_11.dll` respectively
-12. Run `webui.bat --use-zluda --api --listen`
-> Note, first image generation will take a very long time and will look like it is doing nothing. The bot will likely time out. Leave your computer be for quite some time and keep an eye on the terminal window for progress.
+>Ensure you de-select the `Visual Studio Code` options during install or you may get an error during install
+4. Add `%HIP_PATH%bin` to PATH 
+5. Clone `https://github.com/lshqqytiger/stable-diffusion-webui-amdgpu.git` with `git clone` and navigate to the directory.  
+6. Run `webui.bat --use-zluda --api --listen`
+> Note, first image generation will take a very long time and will look like it is doing nothing. I recommend using the webui at [127.0.0.1:7860/](http://127.0.0.1:7860/) with a basic prompt such as `a person riding a bike`. Leave your computer be for quite some time (20+ minutes) and keep an eye on the terminal window for a progress bar. 
 
 **Bot Usage**
 
