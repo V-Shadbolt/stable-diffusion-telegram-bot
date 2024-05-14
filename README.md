@@ -85,8 +85,8 @@ For AMD GPUs:
 6. Clone `https://github.com/lshqqytiger/stable-diffusion-webui-amdgpu.git` with `git clone` and navigate to the directory.  
 7. Run `webui.bat`
 8. After install, stop `webui.bat`
-9. Copy `cublas.dll` and `cusparse.dll` from the extracted ZLUDA folder to `...\stable-diffusion-webui-directml\venv\Lib\site-packages\torch\lib`
-10. Delete the existing `cublas64_11.dll` and `cusparse64_11.dll` from `...\stable-diffusion-webui-directml\venv\Lib\site-packages\torch\lib`
+9. Copy `cublas.dll` and `cusparse.dll` from the extracted ZLUDA folder to `...\stable-diffusion-webui-amdgpu\venv\Lib\site-packages\torch\lib`
+10. Delete the existing `cublas64_11.dll` and `cusparse64_11.dll` from `...\stable-diffusion-webui-amdgpu\venv\Lib\site-packages\torch\lib`
 11. Rename the copied `cublas.dll` and `cusparse.dll` files to `cublas64_11.dll` and `cusparse64_11.dll` respectively
 12. Run `webui.bat --use-zluda --api --listen`
 > Note, first image generation will take a very long time and will look like it is doing nothing. The bot will likely time out. Leave your computer be for quite some time and keep an eye on the terminal window for progress.
