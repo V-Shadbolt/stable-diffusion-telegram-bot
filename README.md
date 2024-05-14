@@ -1,6 +1,14 @@
 **Stable Diffusion Telegram Bot**  
   
 A Docker container that allows you to host your own Telegram bot and generate images using the Stable Diffusion API. Can also be run as just a script without Docker.
+
+[GitHub repository](https://github.com/V-Shadbolt/stable-diffusion-telegram-bot)
+
+[Docker Hub](https://hub.docker.com/r/vshadbolt/stable-diffusion-telegram-bot)
+
+[![Docker Pulls](https://img.shields.io/docker/pulls/vshadbolt/stable-diffusion-telegram-bot.svg?style=for-the-badge)](https://hub.docker.com/r/vshadbolt/stable-diffusion-telegram-bot)
+
+---
   
 **Features**  
   
@@ -83,6 +91,8 @@ For AMD GPUs:
 12. Run `webui.bat --use-zluda --api --listen`
 > Note, first image generation will take a very long time and will look like it is doing nothing. The bot will likely time out. Leave your computer be for quite some time and keep an eye on the terminal window for progress.
 
+**Bot Usage**
+
 ***Option 1: Python***
 To get started with Python, ensure you have [Python 3.10.6](https://www.python.org/downloads/release/python-3106/) installed and added to your PATH prior to following the steps below: 
 
@@ -112,7 +122,7 @@ If using Docker [Portainer](https://www.portainer.io/), use the following steps 
 5. Create a new Stack by copying the [compose](docker-compose.yml) file from this repository
 >Deploy the stack and the Telegram bot should be running and accessible. 
 
-***Common Errors***
+**Common Errors**
 
 1. If the bot does not immediately start, ensure the Telegram Token `TG_TOKEN` is set in the .env or docker compose file. If left as `None` the bot will not be able to start and will show an error similar to below in the logs: 
 `The token 'None' was rejected by the server.`
