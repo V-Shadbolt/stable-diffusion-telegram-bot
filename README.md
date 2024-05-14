@@ -82,7 +82,7 @@ For AMD GPUs:
 >Ensure you de-select the Visual Studio Code options during install or you will get an error during install
 4. Download the latest [ZLUDA .zip release](https://github.com/lshqqytiger/ZLUDA/releases/) and extract it to your chosen directory
 5. Add `%HIP_PATH%bin` and add the extracted folder location for ZLUDA to PATH 
-6. Clone `https://github.com/lshqqytiger/stable-diffusion-webui-directml.git` with `git clone` and navigate to the directory.  
+6. Clone `https://github.com/lshqqytiger/stable-diffusion-webui-amdgpu.git` with `git clone` and navigate to the directory.  
 7. Run `webui.bat`
 8. After install, stop `webui.bat`
 9. Copy `cublas.dll` and `cusparse.dll` from the extracted ZLUDA folder to `...\stable-diffusion-webui-directml\venv\Lib\site-packages\torch\lib`
