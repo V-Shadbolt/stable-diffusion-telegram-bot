@@ -172,10 +172,10 @@ async def send_message(update: Update, context: ContextTypes.DEFAULT_TYPE, image
         await context.bot.send_photo(send_chat_id, image, caption=f'"{prompt}" ({option_button_choice}) \n\nSeed: {formatted_seed}\nSteps: {steps}\nTime: {formatted_time}s', reply_markup=get_markup(option_button_choice), reply_to_message_id=reply_message_id)
     elif image is None:
         await context.bot.delete_message(chat_id=delete_chat_id, message_id=delete_message_id)
-        await context.bot.send_message(update.message.chat_id, 'I can\'t reach Stable diffusion right now, come back later \U0001F607')
+        await context.bot.send_message(send_chat_id, 'I can\'t reach Stable diffusion right now, come back later \U0001F607')
     else:
         await context.bot.delete_message(chat_id=delete_chat_id, message_id=delete_message_id)
-        await context.bot.send_message(update.message.chat_id, f'Stable Diffusion hit a snag \U0001F62D Here is the error: {image}')
+        await context.bot.send_message(send_chat_id, f'Stable Diffusion hit a snag \U0001F62D Here is the error: {image}')
 
 
 async def nesting(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
