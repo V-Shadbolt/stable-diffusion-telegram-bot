@@ -10,6 +10,7 @@ services:
       TG_TOKEN: 'None' # Telegram API token. Defaults to None
       MODEL: None # Stable diffusion 1.5 or XL model name. Defaults to None
       SAMPLER: DPM++ 2M # Stable diffusion sampler name. Defaults to DPM++ 2M
+      SCHEDULER: Karras # Stable diffusion scheduler name. Defaults to Karras
       CFG_SCALE: 7 # Integer between 6 and 14 is recommended. Defaults to 7
       DENOISING_STRENGTH: 0.75 # Float between 0 and 1. Defaults to 0.75
       STEPS: 25 # Integer between 1 and 150. Defaults to 25

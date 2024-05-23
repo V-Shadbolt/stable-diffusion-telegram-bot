@@ -15,6 +15,7 @@ webui_server_url = os.getenv('SERVER_URL', 'http://127.0.0.1:7860/')
 tg_token = os.getenv('TG_TOKEN', None)
 model = os.getenv('MODEL', None)
 sampler = os.getenv('SAMPLER', 'DPM++ 2M')
+scheduler = os.getenv('SCHEDULER', 'Karras')
 cfg_scale = int(os.getenv('CFG_SCALE', 7))
 denoising_strength = float(os.getenv('DENOISING_STRENGTH', 0.75))
 steps = int(os.getenv('STEPS', 25))
@@ -42,7 +43,7 @@ base_payload = {
     },
     "override_settings_restore_afterwards": True,
     "sampler_name":sampler,
-    "scheduler":"Karras",
+    "scheduler":scheduler,
     "cfg_scale": cfg_scale,
     "seed": seed,
     "width":width,
@@ -98,16 +99,18 @@ async def call_api(api_endpoint, **payload):
             data=data,
         )
         jsonResponse = response.json()
+        generation_time = response.elapsed.total_seconds()
         try:
             info = eval(jsonResponse['info'].replace("true","True").replace("false","False").replace("null", "0"))
-            seed = int(info['seed'])
-            return decode_from_base64(jsonResponse['images'][0]), seed
-        except Exception as e:
-            error_details = jsonResponse['detail'][0]
-            error_msg = error_details['msg']
-            return error_msg, None
+            imgseed = int(info['seed'])
+            return decode_from_base64(jsonResponse['images'][0]), imgseed, generation_time
+        except Exception:
+            error_details = jsonResponse['detail']
+            print(jsonResponse)
+            return error_details, None, None
     except requests.exceptions.RequestException as e:
-        return None, None
+        print(e)
+        return None, None, None
 
 
 async def upscale(upscale_endpoint, upscale_photo, upscale_prompt, upscale_denoising_strength=0.3):
@@ -155,27 +158,29 @@ async def upscale(upscale_endpoint, upscale_photo, upscale_prompt, upscale_denoi
             ]
     
     if recursive_upscale and upscale_denoising_strength > 0.2:
-        upscale_image_pass_one, upscale_seed_pass_one = await call_api(upscale_endpoint, **upscale_payload)
+        upscale_image_pass_one, upscale_seed_pass_one, upscale_generation_time = await call_api(upscale_endpoint, **upscale_payload)
         return await upscale(upscale_endpoint, upscale_image_pass_one, upscale_prompt, 0.15)
     else:
         return await call_api(upscale_endpoint, **upscale_payload)
 
 
-async def send_message(update: Update, context: ContextTypes.DEFAULT_TYPE, image, delete_chat_id, delete_message_id, send_chat_id, reply_message_id, prompt, seed, option_button_choice='New') -> None:
+async def send_message(update: Update, context: ContextTypes.DEFAULT_TYPE, image, delete_chat_id, delete_message_id, send_chat_id, reply_message_id, prompt, image_seed, image_generation_time, option_button_choice='New') -> None:
     if isinstance(image, (bytes, bytearray)):
         await context.bot.delete_message(chat_id=delete_chat_id, message_id=delete_message_id)
-        await context.bot.send_photo(send_chat_id, image, caption=f'"{prompt}" ({option_button_choice})', reply_markup=get_markup(option_button_choice), reply_to_message_id=reply_message_id)
+        formatted_seed = str(image_seed)
+        formatted_time = round(image_generation_time, 1)
+        await context.bot.send_photo(send_chat_id, image, caption=f'"{prompt}" ({option_button_choice}) \n\nSeed: {formatted_seed}\nSteps: {steps}\nTime: {formatted_time}s', reply_markup=get_markup(option_button_choice), reply_to_message_id=reply_message_id)
     elif image is None:
         await context.bot.delete_message(chat_id=delete_chat_id, message_id=delete_message_id)
-        await context.bot.send_message(update.message.chat_id, 'Stable diffusion is not currently running, come back later \U0001F607')
+        await context.bot.send_message(update.message.chat_id, 'I can\'t reach Stable diffusion right now, come back later \U0001F607')
     else:
         await context.bot.delete_message(chat_id=delete_chat_id, message_id=delete_message_id)
-        await context.bot.send_message(update.message.chat_id, f'Stable Diffusion hit a snag... Here is the error msg: {image} \U0001F62D')
+        await context.bot.send_message(update.message.chat_id, f'Stable Diffusion hit a snag \U0001F62D Here is the error: {image}')
 
 
 async def nesting(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     original_raw = update.message.reply_to_message.text if update.message.reply_to_message.text is not None else update.message.reply_to_message.caption
-    if not original_raw.startswith("!dream") and not "\" (Seed:" in original_raw:
+    if not original_raw.startswith("!dream"):
         return
     nesting_msg = await update.message.reply_text("Dreaming...", reply_to_message_id=update.message.message_id)
     original_prompt = original_raw.replace("!dream","").strip() if original_raw.startswith("!dream") else original_raw.split('"')[1::2][0]
@@ -189,14 +194,14 @@ async def nesting(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if img2img_controlnet:
             nesting_img2img_payload['alwayson_scripts'] = control_net(nesting_img2img_photo)
         nesting_img2img_endpoint = 'sdapi/v1/img2img'
-        nesting_image, nesting_seed = await call_api(nesting_img2img_endpoint,**nesting_img2img_payload)
+        nesting_image, nesting_seed, nesting_generation_time = await call_api(nesting_img2img_endpoint,**nesting_img2img_payload)
     else:
         nesting_txt2img_payload = deepcopy(base_payload)
         nesting_txt2img_payload['prompt'] = (nesting_prompt+", "+loras).replace(",,", ",")
         nesting_txt2img_endpoint = 'sdapi/v1/txt2img'
-        nesting_image, nesting_seed = await call_api(nesting_txt2img_endpoint, **nesting_txt2img_payload)
+        nesting_image, nesting_seed, nesting_generation_time = await call_api(nesting_txt2img_endpoint, **nesting_txt2img_payload)
     
-    await send_message(update, context, nesting_image, nesting_msg.chat_id, nesting_msg.message_id, update.message.chat_id, update.message.message_id, nesting_prompt, nesting_seed)
+    await send_message(update, context, nesting_image, nesting_msg.chat_id, nesting_msg.message_id, update.message.chat_id, update.message.message_id, nesting_prompt, nesting_seed, nesting_generation_time)
     
 
 async def txt2img(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -208,9 +213,9 @@ async def txt2img(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     txt2img_payload = deepcopy(base_payload)
     txt2img_payload['prompt'] = (txt2img_prompt+", "+loras).replace(",,", ",")
     txt2img_endpoint = 'sdapi/v1/txt2img'
-    txt2img_image, txt2img_seed = await call_api(txt2img_endpoint, **txt2img_payload)
+    txt2img_image, txt2img_seed, txt2img_generation_time = await call_api(txt2img_endpoint, **txt2img_payload)
 
-    await send_message(update, context, txt2img_image, txt2img_msg.chat_id, txt2img_msg.message_id, update.message.chat_id, update.message.message_id, txt2img_prompt, txt2img_seed)
+    await send_message(update, context, txt2img_image, txt2img_msg.chat_id, txt2img_msg.message_id, update.message.chat_id, update.message.message_id, txt2img_prompt, txt2img_seed, txt2img_generation_time)
 
 
 async def img2img(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -230,9 +235,9 @@ async def img2img(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if img2img_controlnet:
         img2img_payload['alwayson_scripts'] = control_net(img2img_photo)
     img2img_endpoint = 'sdapi/v1/img2img'
-    img2img_image, img2img_seed = await call_api(img2img_endpoint,**img2img_payload)
+    img2img_image, img2img_seed, img2img_generation_time = await call_api(img2img_endpoint,**img2img_payload)
 
-    await send_message(update, context, img2img_image, img2img_msg.chat_id, img2img_msg.message_id, update.message.chat_id, update.message.message_id, img2img_prompt, img2img_seed)
+    await send_message(update, context, img2img_image, img2img_msg.chat_id, img2img_msg.message_id, update.message.chat_id, update.message.message_id, img2img_prompt, img2img_seed, img2img_generation_time)
 
 
 async def options(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -256,12 +261,12 @@ async def options(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             if img2img_controlnet:
                 tryagain_img2img_payload['alwayson_scripts'] = control_net(tryagain_img2img_photo)
             tryagain_img2img_endpoint = 'sdapi/v1/img2img'
-            option_image, option_seed = await call_api(tryagain_img2img_endpoint,**tryagain_img2img_payload)
+            option_image, option_seed, option_generation_time = await call_api(tryagain_img2img_endpoint,**tryagain_img2img_payload)
         else:
             tryagain_txt2img_payload = deepcopy(base_payload)
             tryagain_txt2img_payload['prompt'] = (option_prompt+", "+loras).replace(",,", ",")
             tryagain_txt2img_endpoint = 'sdapi/v1/txt2img'
-            option_image, option_seed = await call_api(tryagain_txt2img_endpoint, **tryagain_txt2img_payload)
+            option_image, option_seed, option_generation_time = await call_api(tryagain_txt2img_endpoint, **tryagain_txt2img_payload)
 
     elif query.data == "VARIATION":
         option_msg = await query.message.reply_text("Generating dream variation...", reply_to_message_id=query.message.message_id)
@@ -272,7 +277,7 @@ async def options(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         variation_img2img_payload['prompt'] = (option_prompt+", "+loras).replace(",,", ",")
         variation_img2img_payload['init_images'] = [encode_to_base64(variation_img2img_photo),]
         variation_img2img_payload['resize_mode'] = resize_mode
-        option_image, option_seed = await call_api(variation_img2img_endpoint,**variation_img2img_payload)
+        option_image, option_seed, option_generation_time = await call_api(variation_img2img_endpoint,**variation_img2img_payload)
         option_type = 'Variation'
 
     elif query.data == "UPSCALE":
@@ -281,10 +286,10 @@ async def options(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         upscale_img2img_photo = await upscale_img2img_photo_file.download_as_bytearray()
         upscale_img2img_endpoint = 'sdapi/v1/img2img'
         upscale_img2img_prompt = (option_prompt+", "+loras).replace(",,", ",")
-        option_image, option_seed = await upscale(upscale_img2img_endpoint, upscale_img2img_photo, upscale_img2img_prompt)
+        option_image, option_seed, option_generation_time = await upscale(upscale_img2img_endpoint, upscale_img2img_photo, upscale_img2img_prompt)
         option_type = 'Upscaled'
 
-    await send_message(update, context, option_image, option_msg.chat_id, option_msg.message_id, query.message.chat_id, query.message.message_id, option_prompt, option_seed, option_type)
+    await send_message(update, context, option_image, option_msg.chat_id, option_msg.message_id, query.message.chat_id, query.message.message_id, option_prompt, option_seed, option_generation_time, option_type)
 
 
 if __name__ == '__main__':

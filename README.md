@@ -35,6 +35,7 @@ The bot uses several environment variables that can be set when running the Dock
 * `TG_TOKEN`: The Telegram API token for your bot (default: None).  
 * `MODEL`: The name of the Stable diffusion 1.5 or XL model to use (default: None).  
 * `SAMPLER`: The sampler name to use for image generation (default: DPM++ 2M).  
+* `SCHEDULER`: The scheduler name to use for image generation (default: Karras).  
 * `CFG_SCALE`: An integer between 6 and 14 that controls the CFG scale (default: 7).  
 * `DENOISING_STRENGTH`: A float between 0 and 1 that controls the denoising strength (default: 0.75).  
 * `STEPS`: An integer between 1 and 150 (default: 25).
